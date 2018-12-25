@@ -6,10 +6,17 @@ from models.item import ItemModel
 class Item(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('price',
-        type=float,
-        required=True,
-        help="This field cannot be left blank!"
+                        type=float,
+                        required=True,
+                        help="This field cannot be left blank!"
                         )
+
+    parser.add_argument('store_id',
+                        type=int,
+                        required=True,
+                        help="Every item needs a store id."
+                        )
+
     @jwt_required()
     def get(self, name):
         item = ItemModel.find_by_name(name)
@@ -17,13 +24,14 @@ class Item(Resource):
             return item.json()
         return {'message': 'Item not found'}, 404
 
+    # FIXME: Check if the store_id exists before creating the item.
     @jwt_required()
     def post(self, name):
         if ItemModel.find_by_name(name):
             return {'message': "An item with name '{}' already exists.".format(name)}, 400
 
         data = Item.parser.parse_args()
-        item = ItemModel(name, data['price'])
+        item = ItemModel(name, **data)  # expands to data['price'], data['store_id']
 
         try:
             item.save_to_db()
@@ -41,6 +49,7 @@ class Item(Resource):
 
         return({'message': 'Item not found'}), 404
 
+    # FIXME: Check if the store_id exists before creating the item.
     @jwt_required()
     def put(self, name):
         data = Item.parser.parse_args()
@@ -48,9 +57,10 @@ class Item(Resource):
         item = ItemModel.find_by_name(name)
 
         if item is None:
-            item = ItemModel(name, data['price'])
+            item = ItemModel(name, **data)  # data['price'], data['store_id']
         else:
-           item.price = data['price']
+            item.price = data['price']
+            item.store_id = data['store_id']
 
         item.save_to_db()
 

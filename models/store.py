@@ -8,14 +8,14 @@ class StoreModel(db.Model):
     name = db.Column(db.String(80))
 
     # Back reference the Item table
-    items = db.relationship('ItemModel')
+    items = db.relationship('ItemModel', lazy='dynamic')    # list of item models many to one relationship
+    # lazy dynamic makes it a query but doesnt execute
 
     def __init__(self, name):
         self.name = name
-        self.price = price
 
     def json(self):
-        return {'name': self.name, 'items': self.items}
+        return {'name': self.name, 'items': [item.json() for item in self.items.all()]} # .all() bc of lazy dynamic
 
     @classmethod
     def find_by_name(cls, name):
