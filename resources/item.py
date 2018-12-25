@@ -2,7 +2,7 @@ import sqlite3
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
 from models.item import ItemModel
-
+git
 class Item(Resource):
     TABLE_NAME = 'items'
 
