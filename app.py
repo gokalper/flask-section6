@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_restful import Api
 from flask_jwt import JWT
@@ -7,8 +8,11 @@ from resources.user import UserRegister  # resources folder is package when init
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
 
+heroku_db_url = os.environ.get('DATABASE_URL')
+sqlite_url = 'sqlite:///data.db'
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///data.db')  # (env_var, defaulttovar)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # disable flask_sqlalchemy tracker not sqlalchemy tracker
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.secret_key = 'jose'
